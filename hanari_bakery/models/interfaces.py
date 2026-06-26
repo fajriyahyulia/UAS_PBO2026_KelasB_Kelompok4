@@ -2,6 +2,11 @@
 # Nama: Fajriyah Yulia Az Zahra
 # NIM: K3525005
 
+"""
+interfaces.py
+Kumpulan interface kecil-kecil sesuai ISP (Interface Segregation Principle).
+Kalau digabung jadi satu interface raksasa, itu pelanggaran ISP yang klasik banget.
+"""
 from abc import ABC, abstractmethod
 from typing import List, Dict
 
