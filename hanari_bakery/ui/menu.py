@@ -74,7 +74,7 @@ class MenuUtama:
             }
 
             if pilihan == "0":
-                print("\n  Sampai jumpa! Selamat berproduksi~")
+                print("\n  Sampai jumpa! Selamat berproduction~")
                 break
             elif pilihan in actions:
                 actions[pilihan]()
@@ -141,10 +141,9 @@ class MenuUtama:
         else:
             jenis = input("  Nama jenis: ").strip() or "Lainnya"
 
-        # Input bahan baku
         from hanari_bakery.models.produk_base import BahanBaku
         bahan_list = []
-        print(f"\n  Input bahan baku (ketik \'selesai\' untuk berhenti):")
+        print(f"\n  Input bahan baku (ketik 'selesai' untuk berhenti):")
         while True:
             nama_bahan = input(f"  Nama bahan [{len(bahan_list)+1}]: ").strip()
             if nama_bahan.lower() == "selesai" or nama_bahan == "":
@@ -160,7 +159,6 @@ class MenuUtama:
             except ValueError:
                 print("  Jumlah harus angka, coba lagi.")
 
-        # Proses produksi
         print("\n  Pilih proses produksi (bisa lebih dari satu):")
         semua_proses = ["pengadonan", "pengembangan", "pemanggangan", "topping"]
         for i, p in enumerate(semua_proses, 1):
@@ -179,7 +177,6 @@ class MenuUtama:
             proses_dipilih = ["pengadonan", "pemanggangan"]
             print("  Tidak ada proses dipilih, pakai default: pengadonan + pemanggangan")
 
-        # Harga dan biaya
         try:
             jumlah_per_resep = int(input("\n  Jumlah pcs per resep  : ").strip())
             biaya = float(input("  Biaya produksi/resep  : Rp ").strip())
@@ -189,14 +186,13 @@ class MenuUtama:
             pause()
             return
 
-        # Konfirmasi
         clear_screen()
         header("KONFIRMASI PRODUK BARU")
         print(f"  Nama          : {nama}")
         print(f"  Kode          : {kode}")
         print(f"  Jenis         : {jenis}")
         print(f"  Bahan baku    : {len(bahan_list)} item")
-        print(f"  Proses        : {", ".join(proses_dipilih)}")
+        print(f"  Proses        : {', '.join(proses_dipilih)}")
         print(f"  Per resep     : {jumlah_per_resep} pcs")
         print(f"  Biaya produksi: Rp {biaya:,.0f}")
         print(f"  Harga jual    : Rp {harga:,.0f}")
@@ -257,20 +253,35 @@ class MenuUtama:
             pause()
             return
 
-        clear_screen()
-        header(f"HASIL ESTIMASI: {hasil['produk']}")
-        print(f"  Jumlah diminta      : {hasil['jumlah_pcs_diminta']} pcs")
-        print(f"  Jumlah resep        : {hasil['jumlah_resep']} resep")
-        print(f"  Total diproduksi    : {hasil['total_pcs_diproduksi']} pcs")
-        print(f"  Est. waktu produksi : ~{hasil['estimasi_waktu_menit']} menit")
-        garis("-")
-        print(f"  Total Biaya         : Rp {hasil['total_biaya']:,.0f}")
-        print(f"  Total Pendapatan    : Rp {hasil['total_pendapatan']:,.0f}")
-        print(f"  TOTAL PROFIT        : Rp {hasil['total_profit']:,.0f}")
-        print(f"  Margin Profit       : {hasil['margin_profit']:.1f}%")
-        print(f"  Profit per pcs      : Rp {hasil['profit_per_pcs']:,.0f}")
-        garis()
-        pause()
+        # ---- TAMPILAN NOTA ANALISIS DUA KONDISI PROFIT ----
+        print("\n" + "="*58)
+        print(f" HASIL ESTIMASI PRODUKSI: {hasil['produk']}")
+        print("="*58)
+        print(f" Jumlah diminta      : {hasil['jumlah_pcs_diminta']} pcs")
+        print(f" Jumlah resep        : {hasil['jumlah_resep']} resep")
+        print(f" Total diproduksi    : {hasil['total_pcs_diproduksi']} pcs")
+        print(f" Est. waktu produksi : ~{hasil['estimasi_waktu_menit']} menit")
+        print("-"*58)
+        print(" KONDISI A: JIKA SEMUA HASIL PRODUKSI HABIS TERJUAL")
+        print("-"*58)
+        print(f" Total Pendapatan    : Rp {hasil['total_pendapatan']:,}")
+        print(f" TOTAL PROFIT MAKS   : Rp {hasil['total_profit']:,}")
+        print(f" Margin Profit Maks  : {hasil['margin_profit']:.1f}%")
+        print("-"*58)
+        print(" KONDISI B: JIKA HANYA TERJUAL SESUAI PERMINTAAN USER")
+        print("-"*58)
+        print(f" Total Pendapatan    : Rp {hasil['pendapatan_riil']:,}")
+        print(f" TOTAL PROFIT RIIL   : {hasil['profit_riil']}")
+        
+        # Logika catatan baru berbasis BEP Matematika Industri
+        if hasil['angka_profit_riil'] < 0:
+            print(f" STATUS              : RUGI SEMENTARA (Sisa {hasil['sisa_pcs']} pcs di etalase)")
+            print(f" Catatan             : Harus menjual minimal {hasil.get('pcs_tambahan_lagi', 1)} pcs lagi untuk balik modal")
+        else:
+            print(f" STATUS              : TETAP UNTUNG (Sisa {hasil['sisa_pcs']} pcs jadi bonus etalase)")
+            
+        print("="*58 + "\n")
+        input("  Tekan Enter untuk kembali ke menu...")
 
     def _menu_simulasi_produksi(self):
         clear_screen()
@@ -310,7 +321,6 @@ class MenuUtama:
         print(f"  Target produksi : {jumlah} pcs ({hasil['jumlah_resep']} resep)")
         print(f"  Est. total waktu: ~{hasil['total_waktu']} menit")
 
-        # ---- Validasi Stok ----
         garis("-")
         status_stok = "[CUKUP]" if cek_stok["cukup"] else "[PERHATIAN]"
         print(f"  CEK STOK BAHAN BAKU {status_stok}")
@@ -320,7 +330,7 @@ class MenuUtama:
         for d in cek_stok["detail"]:
             status_icon = "OK" if d["status"] == "CUKUP" else "!!"
             print(
-                f"  [{status_icon}] {d['bahan']:<32} "
+                f"  [{status_icon}] {d['nama']:<32} "
                 f"{d['dibutuhkan']:>6.0f} {d['satuan'][:2]}"
                 f"  {d['tersedia']:>6.0f} {d['satuan'][:2]}"
                 f"  {d['status']}"
@@ -330,7 +340,6 @@ class MenuUtama:
             print("\n  PERINGATAN: Stok tidak mencukupi!")
             print("  Silakan update stok di menu [5] sebelum produksi.")
 
-        # ---- Langkah Produksi ----
         garis("-")
         print("  LANGKAH-LANGKAH PRODUKSI:")
         garis("-")
@@ -338,7 +347,6 @@ class MenuUtama:
             print(f"\n  LANGKAH {i}: {nama_proses.upper()} (~{durasi} menit)")
             wrap_print(deskripsi)
 
-        # ---- Info Profit ----
         if hasil["profit_info"]:
             p = hasil["profit_info"]
             garis("-")
@@ -401,15 +409,20 @@ class MenuUtama:
             print("  Belum ada simulasi produksi yang dijalankan.")
         else:
             print(f"  Total simulasi: {len(history)}x\n")
-            print(f"  {'#':<4} {'WAKTU':<20} {'PRODUK':<18} {'PCS':>5} {'PROFIT':>14} {'STOK'}")
-            garis("-")
+            print(f"  {'#':<4} {'WAKTU':<17} {'PRODUK':<14} {'PESANAN':>8} {'PRODUKSI':>9} {'PROFIT':>12} {'STOK'}")
+            garis("-", 72) 
             for h in history:
                 stok_ok = "OK" if h["stok_cukup"] else "KURANG"
+                
+                pesanan = h.get("jumlah_pcs", 0)
+                produksi = h.get("total_pcs_diproduksi", pesanan) if h["stok_cukup"] else 0
+                
                 print(
-                    f"  {h['id']:<4} {h['timestamp']:<20} "
-                    f"{h['nama_produk']:<18} "
-                    f"{h['jumlah_pcs']:>5} "
-                    f"Rp {h['profit']:>10,.0f} "
+                    f"  {h['id']:<4} {h['timestamp'][:16]:<17} " 
+                    f"{h['nama_produk']:<14} "
+                    f"{pesanan:>4} pcs  "
+                    f"{produksi:>4} pcs   "
+                    f"Rp {h['profit']:>8,.0f} "
                     f"[{stok_ok}]"
                 )
         pause()
