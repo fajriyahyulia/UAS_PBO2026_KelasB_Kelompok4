@@ -4,109 +4,176 @@
 
 """
 production_steps.py
-Implementasi konkret dari tiap interface proses produksi.
-Setiap proses kini punya DURASI WAKTU yang bisa diakumulasi untuk estimasi total waktu produksi.
+Mixin classes untuk setiap langkah proses produksi.
+
+Kenapa Mixin? Karena Python multiple inheritance memungkinkan kita
+"menyuntikkan" kemampuan tertentu ke class tanpa hierarki yang kaku.
+Setiap Mixin hanya punya SATU tanggung jawab (SRP).
+
+ISP terbukti di sini: produk yang tidak butuh suatu proses
+tidak perlu inherit Mixin yang tidak relevan.
 """
 
-from hanari_bakery.models.interfaces import Mixable, Developable, Bakeable, Toppable
 
+# =============================================================================
+# PENGADONAN MIXIN
+# =============================================================================
 
-class PengadonanMixin(Mixable):
-    DURASI_PENGADONAN = 15  # menit
+class PengadonanMixin:
+    """
+    Mixin untuk proses pengadonan standar (roti manis, muffin, dll).
+    Durasi default: 15 menit.
+    """
 
     def pengadonan(self) -> str:
         return (
-            f"Mencampur bahan kering (tepung, gula, garam) terlebih dahulu, "
-            f"lalu masukkan bahan basah (telur, mentega, susu). "
-            f"Uleni hingga adonan {self._nama} elastis dan tidak lengket, sekitar 10-15 menit."
+            "Campur tepung, gula, garam, dan ragi instan dalam wadah besar. "
+            "Buat lubang di tengah, masukkan telur dan susu cair sedikit demi sedikit. "
+            "Uleni dengan tangan atau mixer selama 10 menit hingga adonan elastis. "
+            "Masukkan mentega tawar, uleni lagi 5 menit hingga kalis dan tidak lengket."
         )
 
     def durasi_pengadonan(self) -> int:
-        return self.DURASI_PENGADONAN
+        return 15
 
 
-class PengembanganMixin(Developable):
-    DURASI_PENGEMBANGAN = 60  # menit
+# =============================================================================
+# PENGEMBANGAN MIXIN
+# =============================================================================
+
+class PengembanganMixin:
+    """
+    Mixin untuk proses fermentasi/pengembangan ragi.
+    Hanya dipakai oleh: RotiManis, Croissant, Muffin.
+    Durasi default: 60 menit.
+    """
 
     def pengembangan(self) -> str:
         return (
-            f"Diamkan adonan {self._nama} di tempat hangat (suhu 27-30°C) "
-            f"selama 45-60 menit hingga mengembang dua kali lipat. "
-            f"Tutup dengan kain lembab agar tidak kering."
+            "Bulatkan adonan dan letakkan dalam wadah yang sudah dioles minyak. "
+            "Tutup dengan plastik wrap atau kain lembab. "
+            "Diamkan di tempat hangat (27-30°C) selama 60 menit atau hingga "
+            "adonan mengembang dua kali lipat dari ukuran semula. "
+            "Setelah mengembang, kempiskan adonan dan bentuk sesuai keinginan."
         )
 
     def durasi_pengembangan(self) -> int:
-        return self.DURASI_PENGEMBANGAN
+        return 60
 
 
-class PemanggangangMixin(Bakeable):
-    DURASI_PEMANGGANGAN = 25  # menit
+# =============================================================================
+# PEMANGGANGAN MIXIN
+# =============================================================================
+
+class PemanggangangMixin:
+    """
+    Mixin untuk proses pemanggangan standar.
+    Durasi default: 25 menit.
+    """
 
     def pemanggangan(self) -> str:
         return (
-            f"Panaskan oven 180°C. Panggang {self._nama} selama 20-25 menit "
-            f"hingga permukaannya kecokelatan sempurna dan matang merata. "
-            f"Jangan buka oven di 15 menit pertama!"
+            "Panaskan oven pada suhu 180°C selama 10 menit sebelum memanggang. "
+            "Letakkan adonan yang sudah dibentuk di atas loyang yang dialasi baking paper. "
+            "Panggang selama 18-22 menit hingga permukaan berwarna keemasan. "
+            "Keluarkan dari oven, biarkan di loyang 5 menit, lalu pindahkan ke cooling rack."
         )
 
     def durasi_pemanggangan(self) -> int:
-        return self.DURASI_PEMANGGANGAN
+        return 25
 
 
-class ToppingMixin(Toppable):
-    DURASI_TOPPING = 10  # menit
+# =============================================================================
+# TOPPING MIXIN (standar)
+# =============================================================================
+
+class ToppingMixin:
+    """
+    Mixin untuk proses penambahan topping standar.
+    Durasi default: 10 menit.
+    """
 
     def topping(self) -> str:
         return (
-            f"Tambahkan topping khas untuk {self._nama}: "
-            f"taburkan bahan topping secara merata di atas permukaan. "
-            f"Pastikan menempel sebelum dipanggang agar tidak jatuh."
+            "Siapkan topping pilihan (meses, keju parut, selai, atau krim). "
+            "Oleskan atau taburkan topping secara merata di atas permukaan produk. "
+            "Pastikan topping menempel baik sebelum produk dipanggang atau disajikan."
         )
 
     def durasi_topping(self) -> int:
-        return self.DURASI_TOPPING
+        return 10
 
 
-class CroissantPengadonanMixin(Mixable):
-    DURASI_PENGADONAN = 90  # menit (lebih lama karena lamination)
+# =============================================================================
+# CROISSANT - PENGADONAN MIXIN (teknik lamination, beda dari standar)
+# =============================================================================
+
+class CroissantPengadonanMixin:
+    """
+    Mixin pengadonan khusus Croissant dengan teknik lamination butter.
+    Prosesnya jauh lebih kompleks dari roti biasa.
+    Durasi: 30 menit (belum termasuk waktu istirahat di kulkas).
+    """
 
     def pengadonan(self) -> str:
         return (
-            "Buat adonan detrempe (adonan dasar croissant) dari tepung, ragi, "
-            "gula, garam, susu, dan sedikit mentega. Istirahatkan 30 menit. "
-            "Lakukan proses lamination: masukkan lembaran mentega dingin (beurrage), "
-            "lipat dan giling adonan 3x (single fold) dengan jeda pendinginan 20 menit "
-            "tiap gilasan. Total 27 lapisan mentega yang bikin croissant flaky!"
+            "Campur tepung, gula, garam, dan ragi. Tambahkan susu cair dingin, "
+            "uleni minimal 8 menit hingga adonan halus tapi tidak terlalu kalis. "
+            "Istirahatkan adonan di kulkas 30 menit (retard). "
+            "Siapkan beurrage: mentega tawar dingin dipukul-pukul hingga pipih berbentuk persegi. "
+            "LAMINATION: bungkus beurrage dalam adonan, gilas memanjang, lipat 3 (single fold). "
+            "Ulangi proses gilas-lipat 3x dengan istirahat 20 menit di kulkas setiap sesi. "
+            "Teknik ini menghasilkan lapisan-lapisan tipis yang bikin croissant flaky."
         )
 
     def durasi_pengadonan(self) -> int:
-        return self.DURASI_PENGADONAN
+        return 30
 
 
-class CroissantPemanggangangMixin(Bakeable):
-    DURASI_PEMANGGANGAN = 18  # menit
+# =============================================================================
+# CROISSANT - PEMANGGANGAN MIXIN (suhu lebih tinggi, waktu berbeda)
+# =============================================================================
+
+class CroissantPemanggangangMixin:
+    """
+    Mixin pemanggangan khusus Croissant.
+    Butuh suhu lebih tinggi agar lapisan mentega menghasilkan steam
+    yang bikin croissant mengembang dan berlapis.
+    Durasi: 20 menit.
+    """
 
     def pemanggangan(self) -> str:
         return (
-            "Olesi permukaan croissant dengan egg wash (kuning telur + susu). "
-            "Panggang di oven 200°C selama 15-18 menit hingga berwarna golden brown "
-            "dan terdengar suara hollow saat diketuk bagian bawahnya."
+            "Panaskan oven pada suhu 200°C (api atas-bawah). "
+            "Oles permukaan croissant dengan egg wash (kuning telur + sedikit susu). "
+            "Panggang 18-20 menit hingga berwarna cokelat keemasan yang dalam dan mengkilap. "
+            "JANGAN buka oven di 15 menit pertama agar uap mentega tidak keluar. "
+            "Croissant matang sempurna saat terdengar suara hollow saat diketuk bagian bawahnya."
         )
 
     def durasi_pemanggangan(self) -> int:
-        return self.DURASI_PEMANGGANGAN
+        return 20
 
 
-class MuffinToppingMixin(Toppable):
-    DURASI_TOPPING = 8  # menit
+# =============================================================================
+# MUFFIN - TOPPING MIXIN (streusel, khas muffin)
+# =============================================================================
+
+class MuffinToppingMixin:
+    """
+    Mixin topping khusus Muffin dengan streusel crumble.
+    Berbeda dari topping standar karena streusel dibuat terpisah.
+    Durasi: 10 menit.
+    """
 
     def topping(self) -> str:
         return (
-            "Taburkan streusel (campuran tepung, gula, mentega dingin yang diremas-remas) "
-            "di atas adonan muffin sebelum dipanggang. "
-            "Bisa juga tambahkan choco chips atau blueberry sesuai varian. "
-            "Ini yang bikin muffin punya 'cap' renyah di atasnya!"
+            "Buat streusel: campur tepung, gula, dan mentega dingin yang dipotong dadu. "
+            "Remas-remas dengan jari hingga teksturnya seperti remahan pasir kasar. "
+            "Simpan streusel di kulkas sementara menyiapkan adonan muffin. "
+            "Taburi streusel di atas adonan muffin yang sudah dituang ke dalam cup "
+            "sebelum dipanggang, hingga menutupi permukaannya secara merata."
         )
 
     def durasi_topping(self) -> int:
-        return self.DURASI_TOPPING
+        return 10
