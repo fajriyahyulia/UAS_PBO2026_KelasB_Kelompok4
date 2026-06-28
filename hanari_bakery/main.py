@@ -1,3 +1,7 @@
+# Dikerjakan oleh:
+# Nama: Fajriyah Yulia Az Zahra
+# NIM: K3525005
+
 """
 main.py
 Entry point dan Composition Root aplikasi Hanari Bakery.
