@@ -1,3 +1,8 @@
+"""
+produk_service.py
+Layer service: tempat logika bisnis tinggal.
+Dibuat oleh: Wijang Pratama Putra
+"""
 import math
 from typing import List, Dict, Optional, Tuple, Type
 from hanari_bakery.models.interfaces import (
