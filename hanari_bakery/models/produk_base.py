@@ -5,22 +5,18 @@
 
 """
 produk_base.py
-Kelas induk abstrak ProdukRoti. Ini pondasi dari seluruh hierarki inheritance.
+Kelas induk abstrak ProdukRoti. Fondasi seluruh hierarki inheritance.
 SRP: class ini hanya nyimpen DATA produk dan template proses produksi.
 OCP: terbuka buat extension (subclass baru), tertutup buat modifikasi.
 """
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Dict, Tuple
 
 
 @dataclass
 class BahanBaku:
-    """
-    Value object sederhana. Nama bahan + jumlah per resep.
-    Kenapa dataclass? Karena dia murni nampung data, ga ada logika bisnis.
-    """
     nama: str
     jumlah: float
     satuan: str
@@ -32,11 +28,8 @@ class BahanBaku:
 class ProdukRoti(ABC):
     """
     Kelas induk abstrak untuk SEMUA produk Hanari Bakery.
-
-    LSP: setiap subclass WAJIB bisa menggantikan ProdukRoti tanpa ada
-    perilaku aneh atau exception yang ga diharapkan.
-    
-    Template Method Pattern diterapin di sini lewat `jalankan_produksi()`.
+    LSP: setiap subclass WAJIB bisa menggantikan ProdukRoti tanpa perilaku aneh.
+    Template Method Pattern diterapin lewat jalankan_produksi().
     """
 
     def __init__(
@@ -55,10 +48,6 @@ class ProdukRoti(ABC):
         self._harga_jual_per_n = harga_jual_per_n
         self._jumlah_per_resep = jumlah_per_resep
 
-    # -------------------------------------------------------------------------
-    # Properties (enkapsulasi proper, bukan public attribute biasa)
-    # -------------------------------------------------------------------------
-
     @property
     def nama(self) -> str:
         return self._nama
@@ -69,7 +58,7 @@ class ProdukRoti(ABC):
 
     @property
     def bahan_baku(self) -> List[BahanBaku]:
-        return self._bahan_baku.copy()  # defensive copy biar ga bisa diubah sembarangan
+        return self._bahan_baku.copy()
 
     @property
     def biaya_produksi_per_n(self) -> float:
@@ -83,72 +72,74 @@ class ProdukRoti(ABC):
     def jumlah_per_resep(self) -> int:
         return self._jumlah_per_resep
 
-    # -------------------------------------------------------------------------
-    # Abstract method yang WAJIB diimplementasi subclass
-    # -------------------------------------------------------------------------
-
     @abstractmethod
     def get_jenis(self) -> str:
-        """Kembalikan string jenis produk, e.g. 'Roti Manis', 'Croissant'."""
         pass
 
     @abstractmethod
     def get_proses_produksi(self) -> List[str]:
-        """
-        Kembalikan list langkah proses produksi yang berlaku untuk produk ini.
-        Subclass menentukan sendiri proses mana yang relevan.
-        """
         pass
 
-    # -------------------------------------------------------------------------
-    # Template Method: urutan produksi sudah ditentukan di sini,
-    # tapi detail tiap langkah didelegasikan ke subclass / mixin interface.
-    # -------------------------------------------------------------------------
-
-    def jalankan_produksi(self) -> List[Tuple[str, str]]:
+    def jalankan_produksi(self) -> List[Tuple[str, str, int]]:
         """
-        Jalankan semua proses produksi yang relevan secara berurutan.
-        Return list of (nama_proses, hasil_deskripsi).
+        Jalankan semua proses produksi secara berurutan.
+        Return list of (nama_proses, deskripsi, durasi_menit).
         """
         hasil = []
-        proses_list = self.get_proses_produksi()
-
-        for nama_proses in proses_list:
+        for nama_proses in self.get_proses_produksi():
             if nama_proses == "pengadonan" and hasattr(self, "pengadonan"):
-                hasil.append(("Pengadonan", self.pengadonan()))
+                durasi = getattr(self, "durasi_pengadonan", lambda: 15)()
+                hasil.append(("Pengadonan", self.pengadonan(), durasi))
             elif nama_proses == "pengembangan" and hasattr(self, "pengembangan"):
-                hasil.append(("Pengembangan", self.pengembangan()))
+                durasi = getattr(self, "durasi_pengembangan", lambda: 60)()
+                hasil.append(("Pengembangan", self.pengembangan(), durasi))
             elif nama_proses == "pemanggangan" and hasattr(self, "pemanggangan"):
-                hasil.append(("Pemanggangan", self.pemanggangan()))
+                durasi = getattr(self, "durasi_pemanggangan", lambda: 25)()
+                hasil.append(("Pemanggangan", self.pemanggangan(), durasi))
             elif nama_proses == "topping" and hasattr(self, "topping"):
-                hasil.append(("Topping", self.topping()))
-
+                durasi = getattr(self, "durasi_topping", lambda: 10)()
+                hasil.append(("Topping", self.topping(), durasi))
         return hasil
 
-    # -------------------------------------------------------------------------
-    # Concrete methods: logika yang sama buat semua produk
-    # -------------------------------------------------------------------------
+    def total_waktu_produksi(self) -> int:
+        """Total estimasi waktu produksi dalam menit."""
+        return sum(d for _, _, d in self.jalankan_produksi())
+
+    def kebutuhan_bahan_untuk(self, jumlah_resep: int) -> List[Dict]:
+        """Hitung kebutuhan total bahan baku untuk sejumlah resep."""
+        return [
+            {
+                "nama": b.nama,
+                "jumlah_dibutuhkan": b.jumlah * jumlah_resep,
+                "satuan": b.satuan
+            }
+            for b in self._bahan_baku
+        ]
 
     def info_singkat(self) -> str:
+        waktu = self.total_waktu_produksi()
         return (
             f"[{self._kode}] {self._nama} ({self.get_jenis()}) "
             f"| Harga: Rp {self._harga_jual_per_n:,.0f}/{self._jumlah_per_resep} pcs"
+            f" | Waktu: ~{waktu} menit/resep"
         )
 
     def info_lengkap(self) -> str:
         bahan_str = "\n  ".join(str(b) for b in self._bahan_baku)
         proses_str = ", ".join(self.get_proses_produksi())
+        waktu = self.total_waktu_produksi()
         return (
-            f"\n{'='*55}\n"
+            f"\n{'='*58}\n"
             f"  {self._nama} [{self._kode}]\n"
-            f"{'='*55}\n"
-            f"  Jenis         : {self.get_jenis()}\n"
-            f"  Bahan Baku    :\n  {bahan_str}\n"
-            f"  Per Resep     : {self._jumlah_per_resep} pcs\n"
-            f"  Biaya Produksi: Rp {self._biaya_produksi_per_n:,.0f}\n"
-            f"  Harga Jual    : Rp {self._harga_jual_per_n:,.0f}\n"
-            f"  Proses        : {proses_str}\n"
-            f"{'='*55}"
+            f"{'='*58}\n"
+            f"  Jenis           : {self.get_jenis()}\n"
+            f"  Bahan Baku      :\n  {bahan_str}\n"
+            f"  Per Resep       : {self._jumlah_per_resep} pcs\n"
+            f"  Biaya Produksi  : Rp {self._biaya_produksi_per_n:,.0f}/resep\n"
+            f"  Harga Jual      : Rp {self._harga_jual_per_n:,.0f}/resep\n"
+            f"  Proses          : {proses_str}\n"
+            f"  Est. Waktu      : ~{waktu} menit/resep\n"
+            f"{'='*58}"
         )
 
     def __repr__(self):
