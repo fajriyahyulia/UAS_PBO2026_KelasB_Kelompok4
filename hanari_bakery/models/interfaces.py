@@ -1,9 +1,11 @@
-# Dikerjakan oleh:
-# Nama: Fajriyah Yulia Az Zahra
-# NIM: K3525005
+"""
+interfaces.py
+Kumpulan interface kecil-kecil sesuai ISP (Interface Segregation Principle).
+Kalau digabung jadi satu interface raksasa, itu pelanggaran ISP yang klasik banget.
+"""
 
 from abc import ABC, abstractmethod
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 
 # =============================================================================
@@ -61,6 +63,10 @@ class ProductRepositoryInterface(ABC):
     def delete(self, code: str) -> bool:
         pass
 
+    @abstractmethod
+    def exists(self, code: str) -> bool:
+        pass
+
 
 # =============================================================================
 # SERVICE INTERFACE (DIP)
@@ -71,4 +77,64 @@ class ProfitCalculatorInterface(ABC):
 
     @abstractmethod
     def hitung_profit(self, product, jumlah_pcs: int) -> Dict:
+        pass
+
+
+# =============================================================================
+# STOK INTERFACE (ISP: dipisah dari repository produk)
+# =============================================================================
+
+class StokManagerInterface(ABC):
+    """Abstraksi manajemen stok bahan baku."""
+
+    @abstractmethod
+    def set_stok(self, nama_bahan: str, jumlah: float, satuan: str) -> None:
+        pass
+
+    @abstractmethod
+    def get_stok(self, nama_bahan: str) -> Optional[float]:
+        pass
+
+    @abstractmethod
+    def get_semua_stok(self) -> Dict:
+        pass
+
+    @abstractmethod
+    def kurangi_stok(self, nama_bahan: str, jumlah: float) -> bool:
+        pass
+
+    @abstractmethod
+    def cek_kecukupan(self, kebutuhan: List) -> Dict:
+        pass
+
+
+# =============================================================================
+# HISTORY INTERFACE
+# =============================================================================
+
+class HistoryRepositoryInterface(ABC):
+    """Abstraksi penyimpanan history produksi."""
+
+    @abstractmethod
+    def simpan(self, record: Dict) -> None:
+        pass
+
+    @abstractmethod
+    def get_semua(self) -> List[Dict]:
+        pass
+
+    @abstractmethod
+    def get_by_produk(self, kode: str) -> List[Dict]:
+        pass
+
+
+# =============================================================================
+# LAPORAN INTERFACE
+# =============================================================================
+
+class LaporanGeneratorInterface(ABC):
+    """Abstraksi generator laporan."""
+
+    @abstractmethod
+    def generate_rekap(self, produk_list: List, history: List[Dict]) -> str:
         pass
