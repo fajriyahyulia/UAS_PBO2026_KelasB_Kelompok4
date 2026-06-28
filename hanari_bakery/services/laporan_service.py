@@ -1,3 +1,9 @@
+"""
+laporan_service.py
+Layer service: Tempat mengolah data mentah riwayat menjadi laporan teks visual estetis.
+Dibuat oleh: Wijang Pratama Putra
+"""
+
 class LaporanGenerator:
     def __init__(self):
         pass
