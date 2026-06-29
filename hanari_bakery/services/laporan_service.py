@@ -2,6 +2,7 @@
 laporan_service.py
 Layer service: Tempat mengolah data mentah riwayat menjadi laporan teks visual estetis.
 Dibuat oleh: Wijang Pratama Putra
+NIM:K3525043
 """
 
 from hanari_bakery.models.interfaces import LaporanGeneratorInterface
