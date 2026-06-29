@@ -40,4 +40,4 @@ class InMemoryHistoryRepository(HistoryRepositoryInterface):
         return list(self._records)
 
     def get_by_produk(self, kode: str) -> List[Dict]:
-        return [r for r in self._records if r.get("kode_produk") == kode.upper()
+        return [r for r in self._records if r.get("kode_produk") == kode.upper()]
