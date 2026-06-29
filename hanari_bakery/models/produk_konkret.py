@@ -1,3 +1,7 @@
+# Dikerjakan oleh
+# Nama: Fatimah Az Zahra
+# NIM : K3525006
+
 """
 produk_konkret.py
 Implementasi konkret semua produk Hanari Bakery.

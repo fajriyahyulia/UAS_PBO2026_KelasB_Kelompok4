@@ -14,17 +14,10 @@ ISP terbukti di sini: produk yang tidak butuh suatu proses
 tidak perlu inherit Mixin yang tidak relevan.
 """
 
+from hanari_bakery.models.interfaces import Mixable, Developable, Bakeable, Toppable
 
-# =============================================================================
-# PENGADONAN MIXIN
-# =============================================================================
 
-class PengadonanMixin:
-    """
-    Mixin untuk proses pengadonan standar (roti manis, muffin, dll).
-    Durasi default: 15 menit.
-    """
-
+class PengadonanMixin(Mixable):
     def pengadonan(self) -> str:
         return (
             "Campur tepung, gula, garam, dan ragi instan dalam wadah besar. "
@@ -37,17 +30,7 @@ class PengadonanMixin:
         return 15
 
 
-# =============================================================================
-# PENGEMBANGAN MIXIN
-# =============================================================================
-
-class PengembanganMixin:
-    """
-    Mixin untuk proses fermentasi/pengembangan ragi.
-    Hanya dipakai oleh: RotiManis, Croissant, Muffin.
-    Durasi default: 60 menit.
-    """
-
+class PengembanganMixin(Developable):
     def pengembangan(self) -> str:
         return (
             "Bulatkan adonan dan letakkan dalam wadah yang sudah dioles minyak. "
@@ -61,16 +44,7 @@ class PengembanganMixin:
         return 60
 
 
-# =============================================================================
-# PEMANGGANGAN MIXIN
-# =============================================================================
-
-class PemanggangangMixin:
-    """
-    Mixin untuk proses pemanggangan standar.
-    Durasi default: 25 menit.
-    """
-
+class PemanggangangMixin(Bakeable):
     def pemanggangan(self) -> str:
         return (
             "Panaskan oven pada suhu 180°C selama 10 menit sebelum memanggang. "
@@ -83,16 +57,7 @@ class PemanggangangMixin:
         return 25
 
 
-# =============================================================================
-# TOPPING MIXIN (standar)
-# =============================================================================
-
-class ToppingMixin:
-    """
-    Mixin untuk proses penambahan topping standar.
-    Durasi default: 10 menit.
-    """
-
+class ToppingMixin(Toppable):
     def topping(self) -> str:
         return (
             "Siapkan topping pilihan (meses, keju parut, selai, atau krim). "
@@ -104,17 +69,7 @@ class ToppingMixin:
         return 10
 
 
-# =============================================================================
-# CROISSANT - PENGADONAN MIXIN (teknik lamination, beda dari standar)
-# =============================================================================
-
-class CroissantPengadonanMixin:
-    """
-    Mixin pengadonan khusus Croissant dengan teknik lamination butter.
-    Prosesnya jauh lebih kompleks dari roti biasa.
-    Durasi: 30 menit (belum termasuk waktu istirahat di kulkas).
-    """
-
+class CroissantPengadonanMixin(Mixable):
     def pengadonan(self) -> str:
         return (
             "Campur tepung, gula, garam, dan ragi. Tambahkan susu cair dingin, "
@@ -130,18 +85,7 @@ class CroissantPengadonanMixin:
         return 30
 
 
-# =============================================================================
-# CROISSANT - PEMANGGANGAN MIXIN (suhu lebih tinggi, waktu berbeda)
-# =============================================================================
-
-class CroissantPemanggangangMixin:
-    """
-    Mixin pemanggangan khusus Croissant.
-    Butuh suhu lebih tinggi agar lapisan mentega menghasilkan steam
-    yang bikin croissant mengembang dan berlapis.
-    Durasi: 20 menit.
-    """
-
+class CroissantPemanggangangMixin(Bakeable):
     def pemanggangan(self) -> str:
         return (
             "Panaskan oven pada suhu 200°C (api atas-bawah). "
@@ -155,17 +99,7 @@ class CroissantPemanggangangMixin:
         return 20
 
 
-# =============================================================================
-# MUFFIN - TOPPING MIXIN (streusel, khas muffin)
-# =============================================================================
-
-class MuffinToppingMixin:
-    """
-    Mixin topping khusus Muffin dengan streusel crumble.
-    Berbeda dari topping standar karena streusel dibuat terpisah.
-    Durasi: 10 menit.
-    """
-
+class MuffinToppingMixin(Toppable):
     def topping(self) -> str:
         return (
             "Buat streusel: campur tepung, gula, dan mentega dingin yang dipotong dadu. "
