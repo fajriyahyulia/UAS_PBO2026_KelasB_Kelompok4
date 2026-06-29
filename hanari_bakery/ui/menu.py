@@ -278,7 +278,10 @@ class MenuUtama:
             print(f" STATUS              : RUGI SEMENTARA (Sisa {hasil['sisa_pcs']} pcs di etalase)")
             print(f" Catatan             : Harus menjual minimal {hasil.get('pcs_tambahan_lagi', 1)} pcs lagi untuk balik modal")
         else:
-            print(f" STATUS              : TETAP UNTUNG (Sisa {hasil['sisa_pcs']} pcs jadi bonus etalase)")
+            if hasil['angka_profit_riil'] == 0:
+                print(f" STATUS              : BALIK MODAL / BEP (Sisa {hasil['sisa_pcs']} pcs masih di etalase, belum ada untung)")
+            else:
+                print(f" STATUS              : UNTUNG (Sisa {hasil['sisa_pcs']} pcs jadi bonus etalase)")
             
         print("="*58 + "\n")
         input("  Tekan Enter untuk kembali ke menu...")
